@@ -71,6 +71,13 @@ void S_CFeaExtraction::release(void)
 	delete[] sp_skeleon;
 
 	double **sp_skeleon;
+
+	for (int i=0; i<frameNum; i++)
+	{
+		delete[] feature[i];
+	}
+	delete[] feature;
+	double **feature;
 }
 
 

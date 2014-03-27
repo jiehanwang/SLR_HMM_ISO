@@ -2,7 +2,7 @@
 #define _HMMSTRUCT_H
 
 //must be re-modify this value
-#define MAXWORDNUM 1000 //1424//1537 // //240 //89//243 //246//5008////4942 //4930//208//99//98////321//405//306//0
+#define MAXWORDNUM 369 //1424//1537 // //240 //89//243 //246//5008////4942 //4930//208//99//98////321//405//306//0
 //must be consistent with the size of vocabulary
 
 #define DIMENSION 61 //how much dimension
