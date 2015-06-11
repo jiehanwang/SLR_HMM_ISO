@@ -792,7 +792,8 @@ bool CHandSegment_HMM::headDetectionByOpenCV(IplImage* colorImage, Mat mDepth, C
 	return true;
 }
 
-IplImage* CHandSegment_HMM::kickOneHand(IplImage* rgbImg, Mat mDepth, CvPoint point, CRect& rect, int flag, CvPoint& outPoint,LONGLONG timeStamp,bool bVideo)
+IplImage* CHandSegment_HMM::kickOneHand(IplImage* rgbImg, Mat mDepth, CvPoint point, 
+	CRect& rect, int flag, CvPoint& outPoint,LONGLONG timeStamp,bool bVideo)
 {
 	bool bDepthUsed = true;
 	unsigned short depthValue = mDepth.at<unsigned short>(point.y,point.x);

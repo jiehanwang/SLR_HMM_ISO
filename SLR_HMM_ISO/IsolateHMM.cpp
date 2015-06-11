@@ -78,9 +78,6 @@ void IsolateHMM::readIndata(SLR_ST_Skeleton skeletonCurrent, Mat depthCurrent, I
 {
 	if (framID == 0)
 	{
-// 		heightLimit = min(skeletonCurrent._2dPoint[7].y,
-// 			skeletonCurrent._2dPoint[11].y) - 20;
-
 		headPoint.x = skeletonCurrent._2dPoint[3].x;
 		headPoint.y = skeletonCurrent._2dPoint[3].y;
 		bool bHeadFound = handSegmentVideo.headDetectionVIPLSDK(
@@ -96,19 +93,8 @@ void IsolateHMM::readIndata(SLR_ST_Skeleton skeletonCurrent, Mat depthCurrent, I
 		}
 	}
 
-// 	int heightThisLimit = min(skeletonCurrent._2dPoint[7].y,
-// 		skeletonCurrent._2dPoint[11].y);
-// 	if (heightThisLimit < heightLimit)
-// 	{
-// 		frameSelected == true;
-// 		usefulFrameSize++;
-// 	}
-// 	else
-// 	{
-// 		frameSelected = false;
-// 	}
 
-	if (/*frameSelected*/ frameSelect[framID] == 1)
+	if (frameSelect[framID] == 1)
 	{
 		vSkeleton.push_back(skeletonCurrent);
 
@@ -164,16 +150,17 @@ void IsolateHMM::patchRun(vector<SLR_ST_Skeleton> vSkeletonData, vector<Mat> vDe
 	Mat             depthCurrent;
 	IplImage        *frameCurrent;
 
+	//Decide the frames to be used or not. frameSelect is the mask. 
 	int frameSize = vColorData.size();
 	int heightLimit = min(vSkeletonData[0]._2dPoint[7].y,
 		vSkeletonData[0]._2dPoint[11].y) - 20;
-
 	for (int i=0; i<frameSize; i++)
 	{
 		frameSelect_inMatch(heightLimit, vSkeletonData[i]._2dPoint[7].y,
 			vSkeletonData[i]._2dPoint[11].y);
 	}
 
+	//Read in data and extract the hand postures in each available frame. 
 	for (int i=0; i<frameSize; i++)
 	{
 		skeletonCurrent = vSkeletonData[i];
@@ -183,6 +170,7 @@ void IsolateHMM::patchRun(vector<SLR_ST_Skeleton> vSkeletonData, vector<Mat> vDe
 		readIndata(skeletonCurrent, depthCurrent, frameCurrent, framID);
 	}
 
+	//Extract the SP and hog feature, and recognize
 	recognize(rank, score);
 
 }

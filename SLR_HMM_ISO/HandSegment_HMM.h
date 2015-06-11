@@ -10,12 +10,7 @@
 #include "stdafx.h"
 #include <iostream>
 #include "connexe.h"
-// #include "cv.h"
-// #include "highgui.h"
 #include <opencv2\opencv.hpp>
-//#include "JFD_api.h"
-//#include "JFD_define.h"
-//#include "globalDefine.h"
 #include <fstream>
 #include "VIPLFDAPI.h"
 
