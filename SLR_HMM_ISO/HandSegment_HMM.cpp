@@ -1,17 +1,17 @@
 ﻿#include "StdAfx.h"
-#include "HandSegment.h"
+#include "HandSegment_HMM.h"
 
-CHandSegment::CHandSegment(void)
+CHandSegment_HMM::CHandSegment_HMM(void)
 {
 
 }
 
 
-CHandSegment::~CHandSegment(void)
+CHandSegment_HMM::~CHandSegment_HMM(void)
 {
 }
 
-void CHandSegment::init()
+void CHandSegment_HMM::init()
 {
 	m_pHeadImage = NULL;
 	m_pFaceNeckBiImg = NULL;
@@ -31,7 +31,7 @@ void CHandSegment::init()
 	fr.close();
 }
 
-void CHandSegment::destroy()
+void CHandSegment_HMM::destroy()
 {
 	if(m_pFaceNeckBiImg != NULL)
 	{
@@ -48,12 +48,12 @@ void CHandSegment::destroy()
 	//}
 }
 
-double CHandSegment::getDistanceOfPoints(CvPoint point1, CvPoint point2)
+double CHandSegment_HMM::getDistanceOfPoints(CvPoint point1, CvPoint point2)
 {
 	return sqrt(double(point1.x-point2.x)*(point1.x-point1.x) + (point1.y-point2.y)*(point1.y-point2.y));
 }
 
-void CHandSegment::kickHands(IplImage *rgbImg, Mat mDepth, bool bLeft, bool bRight, CvPoint leftPoint, CvPoint rightPoint, CvPoint& outLeftPoint, CvPoint& outRightPoint, CvPoint& outLeftCorner, CvPoint& outRightCorner,
+void CHandSegment_HMM::kickHands(IplImage *rgbImg, Mat mDepth, bool bLeft, bool bRight, CvPoint leftPoint, CvPoint rightPoint, CvPoint& outLeftPoint, CvPoint& outRightPoint, CvPoint& outLeftCorner, CvPoint& outRightCorner,
 	LONGLONG timeStamp, Posture &posture, bool bVideo)
 {
 	if(leftPoint.x > 640 || leftPoint.y < 0 || leftPoint.y > 480 || leftPoint.y < 0 ||
@@ -126,7 +126,7 @@ void CHandSegment::kickHands(IplImage *rgbImg, Mat mDepth, bool bLeft, bool bRig
 		cvReleaseImage(&rightOutputImg);
 }
 
-void CHandSegment::kickHandsAll(IplImage* rgbImg, Mat mDepth, CvPoint leftPoint, CvPoint rightPoint, Posture & posture,CvRect &leftHand,CvRect &rightHand)
+void CHandSegment_HMM::kickHandsAll(IplImage* rgbImg, Mat mDepth, CvPoint leftPoint, CvPoint rightPoint, Posture & posture,CvRect &leftHand,CvRect &rightHand)
 {
 	if(leftPoint.x > 640 || leftPoint.y < 0 || leftPoint.y > 480 || leftPoint.y < 0 ||
 		rightPoint.x > 640 || rightPoint.x < 0 || rightPoint.y > 480 || rightPoint.y < 0)
@@ -171,7 +171,7 @@ void CHandSegment::kickHandsAll(IplImage* rgbImg, Mat mDepth, CvPoint leftPoint,
 		cvReleaseImage(&rightOutputImg);
 }
 
-IplImage* CHandSegment::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint point,CvRect &HandRegion)
+IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint point,CvRect &HandRegion)
 {
 	int y,x;
 	bool bDepthUsed = true;
@@ -488,7 +488,9 @@ IplImage* CHandSegment::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint poin
 		cvReleaseImage(&handImg);
 		handImg =getROIImage(img,handCvRect);
 
+#ifndef GrayHandImage
 		getForeImage(handImg,binaryImg);
+#endif
 		outputImg = getROIImage(handImg,cvRect(theBox[0],theBox[1],theBox[2]-theBox[0],theBox[3]-theBox[1]));
 
 		HandRegion.x = handCvRect.x + theBox[0];
@@ -511,22 +513,102 @@ IplImage* CHandSegment::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint poin
 	return outputImg;
 }
 
-bool CHandSegment::headDetection(IplImage* colorImage, Mat mDepth, CvPoint headCenter)
+bool CHandSegment_HMM::headDetection(IplImage* colorImage, Mat mDepth, CvPoint headCenter)
 {
 
-	//JDL Face Detection
-	JFDetector *m_pFaceDetector = NULL;
-	char* faceClassifierPath = "..\\input";
-	if(m_pFaceDetector == NULL)
-	{
-		m_pFaceDetector = new JFDetector();
-		m_pFaceDetector->SetClassifiersPath(faceClassifierPath);
-		m_pFaceDetector->FDInitialize();
-		m_pFaceDetector->SetSpeedAccuracyMode(14);
-		m_pFaceDetector->SetInputBPP(Gray8);
-		//m_pFaceDetector->SetPanClassifier(PL_1_30_degree);
-		// m_pFaceDetector->SetRollClassifier(RL_1_20_degree);
-	}
+    //JDL Face Detection
+// 	JFDetector *m_pFaceDetector = NULL;
+// 	char* faceClassifierPath = "..\\input";
+// 	if(m_pFaceDetector == NULL)
+// 	{
+// 		m_pFaceDetector = new JFDetector();
+// 		m_pFaceDetector->SetClassifiersPath(faceClassifierPath);
+// 		m_pFaceDetector->FDInitialize();
+// 		m_pFaceDetector->SetSpeedAccuracyMode(14);
+// 		m_pFaceDetector->SetInputBPP(Gray8);
+// 		//m_pFaceDetector->SetPanClassifier(PL_1_30_degree);
+// 		// m_pFaceDetector->SetRollClassifier(RL_1_20_degree);
+// 	}
+// 	
+// 	CRect partRect = CRect(
+// 		max<int>(0, headCenter.x - 100),
+// 		max<int>(0, headCenter.y - 100),
+// 		min<int>(640, headCenter.x + 100),
+// 		min<int>(480, headCenter.y + 100)
+// 		);
+// 	IplImage *partImg = getROIImage(colorImage,cvRect(partRect.left,partRect.top,partRect.Width(),partRect.Height()));
+// 	IplImage *grayImage = cvCreateImage(cvSize(partImg->width,partImg->height),partImg->depth,1);
+// 	cvCvtColor(partImg,grayImage,CV_BGR2GRAY);
+// 	
+// 	bool bFound = false;
+// 	if(grayImage)
+// 	{
+// 		int width = grayImage->width;
+// 		int height = grayImage->height;
+// 		m_pFaceDetector->SetInputResolusion(width,height);
+// 		int faceNum = 0;
+// 		m_pFaceDetector->FDFindFaces((const unsigned char*)grayImage->imageData,&faceNum);
+// 		vector<FACEINFO> vFaceInfo;
+// 		double minDis;
+// 		if(faceNum > 0)
+// 		{
+// 			vFaceInfo.resize(faceNum);
+// 			bFound = true;
+// 			m_pFaceDetector->FDGetFacesInfo(&vFaceInfo[0],faceNum);
+// 	
+// 			CRect tempFaceRect;
+// 			tempFaceRect = CRect( vFaceInfo[0].nLeft,
+// 				vFaceInfo[0].nTop,
+// 				vFaceInfo[0].nLeft + vFaceInfo[0].nWidth,
+// 				vFaceInfo[0].nTop + vFaceInfo[0].nHeight);
+// 			minDis = getDistanceOfPoints(cvPoint(headCenter.x-partRect.left,headCenter.y-partRect.top),cvPoint((tempFaceRect.left+tempFaceRect.right)/2,(tempFaceRect.top+tempFaceRect.bottom)/2));
+// 			for(int h=1; h<faceNum; h++)
+// 			{
+// 				CRect tempRect = CRect( vFaceInfo[h].nLeft,
+// 					vFaceInfo[h].nTop,
+// 					vFaceInfo[h].nLeft + vFaceInfo[h].nWidth,
+// 					vFaceInfo[h].nTop + vFaceInfo[h].nHeight);
+// 				double dis = getDistanceOfPoints(cvPoint(headCenter.x-partRect.left,headCenter.y-partRect.top),cvPoint((tempRect.left+tempRect.right)/2,(tempRect.top+tempRect.bottom)/2));
+// 				if(dis < minDis) //if(tempRect.top < m_faceRect.top)
+// 					tempFaceRect = tempRect;
+// 			}
+// 			m_faceRect = CRect(tempFaceRect.left + partRect.left, tempFaceRect.top + partRect.top, tempFaceRect.right + partRect.left, tempFaceRect.bottom + partRect.top);
+// 	
+// 			m_pHeadImage = getROIImage(colorImage,cvRect(m_faceRect.left,m_faceRect.top,m_faceRect.Width(),m_faceRect.Height()));	
+// 	
+// 			//获得人脸的深度
+// 			m_faceDepthMin = 0xFFFF;
+// 			int i,j;
+// 			for(j=m_faceRect.top; j<m_faceRect.bottom; j++)
+// 			{
+// 				for(i=m_faceRect.left; i<m_faceRect.right; i++)
+// 				{
+// 					if(mDepth.at<unsigned short>(j,i) < m_faceDepthMin && mDepth.at<unsigned short>(j,i) != 0)
+// 						m_faceDepthMin = mDepth.at<unsigned short>(j,i) ;
+// 				}
+// 			}
+// 		}
+// 		else
+// 		{
+// 			bFound = false;
+// 		}
+// 	}
+// 	cvReleaseImage(&partImg);
+// 	cvReleaseImage(&grayImage);
+// 	grayImage = NULL;
+// 	delete m_pFaceDetector;
+// 	m_pFaceDetector = NULL;
+// 	
+// 	return bFound;
+	return false;
+
+}
+
+bool CHandSegment_HMM::headDetectionVIPLSDK(IplImage* colorImage, Mat mDepth, CvPoint headCenter)
+{//head detection,if true, initial m_pHeadImage, m_faceRect,m_faceDepthMin
+	m_pHeadImage = NULL;
+
+
 
 	CRect partRect = CRect(
 		max<int>(0, headCenter.x - 100),
@@ -538,71 +620,114 @@ bool CHandSegment::headDetection(IplImage* colorImage, Mat mDepth, CvPoint headC
 	IplImage *grayImage = cvCreateImage(cvSize(partImg->width,partImg->height),partImg->depth,1);
 	cvCvtColor(partImg,grayImage,CV_BGR2GRAY);
 
+
+
+
+	VIPLFACEDETECTOR faceDetector;
+	char* faceClassifierPath = "..\\input";
+	bool hr = FDInitialize(faceClassifierPath, PL_1_30_degree, RL_1_20_degree, TL_2_40_degree, 0.7);
+
 	bool bFound = false;
-	if(grayImage)
+	if (hr)
 	{
-		int width = grayImage->width;
-		int height = grayImage->height;
-		m_pFaceDetector->SetInputResolusion(width,height);
-		int faceNum = 0;
-		m_pFaceDetector->FDFindFaces((const unsigned char*)grayImage->imageData,&faceNum);
-		vector<FACEINFO> vFaceInfo;
-		double minDis;
-		if(faceNum > 0)
+		
+		faceDetector = CreateFaceDetector();
+		if (faceDetector != NULL)
 		{
-			vFaceInfo.resize(faceNum);
-			bFound = true;
-			m_pFaceDetector->FDGetFacesInfo(&vFaceInfo[0],faceNum);
+			int width = grayImage->width;
+			int height = grayImage->height;
+			int detectedFaceNum = 0;
+			FACEINFO* vFaceInfo = new FACEINFO[250];
+			SetInputResolusion(faceDetector, width, height);
+			FDFindFaces(faceDetector, (const unsigned char*)grayImage->imageData, vFaceInfo, detectedFaceNum);
 
-			CRect tempFaceRect;
-			tempFaceRect = CRect( vFaceInfo[0].nLeft,
-				vFaceInfo[0].nTop,
-				vFaceInfo[0].nLeft + vFaceInfo[0].nWidth,
-				vFaceInfo[0].nTop + vFaceInfo[0].nHeight);
-			minDis = getDistanceOfPoints(cvPoint(headCenter.x-partRect.left,headCenter.y-partRect.top),cvPoint((tempFaceRect.left+tempFaceRect.right)/2,(tempFaceRect.top+tempFaceRect.bottom)/2));
-			for(int h=1; h<faceNum; h++)
+			double minDis;
+			
+			if(detectedFaceNum > 0)
 			{
-				CRect tempRect = CRect( vFaceInfo[h].nLeft,
-					vFaceInfo[h].nTop,
-					vFaceInfo[h].nLeft + vFaceInfo[h].nWidth,
-					vFaceInfo[h].nTop + vFaceInfo[h].nHeight);
-				double dis = getDistanceOfPoints(cvPoint(headCenter.x-partRect.left,headCenter.y-partRect.top),cvPoint((tempRect.left+tempRect.right)/2,(tempRect.top+tempRect.bottom)/2));
-				if(dis < minDis) //if(tempRect.top < m_faceRect.top)
-					tempFaceRect = tempRect;
-			}
-			m_faceRect = CRect(tempFaceRect.left + partRect.left, tempFaceRect.top + partRect.top, tempFaceRect.right + partRect.left, tempFaceRect.bottom + partRect.top);
-
-			m_pHeadImage = getROIImage(colorImage,cvRect(m_faceRect.left,m_faceRect.top,m_faceRect.Width(),m_faceRect.Height()));	
-
-			//获得人脸的深度
-			m_faceDepthMin = 0xFFFF;
-			int i,j;
-			for(j=m_faceRect.top; j<m_faceRect.bottom; j++)
-			{
-				for(i=m_faceRect.left; i<m_faceRect.right; i++)
+				bFound = true;
+				CRect tempFaceRect;
+				tempFaceRect = CRect( vFaceInfo[0].nLeft,
+					vFaceInfo[0].nTop,
+					vFaceInfo[0].nLeft + vFaceInfo[0].nWidth,
+					vFaceInfo[0].nTop + vFaceInfo[0].nHeight);
+				minDis = getDistanceOfPoints(cvPoint(headCenter.x-partRect.left,headCenter.y-partRect.top),
+					cvPoint((tempFaceRect.left+tempFaceRect.right)/2,(tempFaceRect.top+tempFaceRect.bottom)/2));
+				for(int h=1; h<detectedFaceNum; h++)
 				{
-					if(mDepth.at<unsigned short>(j,i) < m_faceDepthMin && mDepth.at<unsigned short>(j,i) != 0)
-						m_faceDepthMin = mDepth.at<unsigned short>(j,i) ;
+					CRect tempRect = CRect( vFaceInfo[h].nLeft,
+						vFaceInfo[h].nTop,
+						vFaceInfo[h].nLeft + vFaceInfo[h].nWidth,
+						vFaceInfo[h].nTop + vFaceInfo[h].nHeight);
+					double dis = getDistanceOfPoints(cvPoint(headCenter.x-partRect.left,headCenter.y-partRect.top),
+						cvPoint((tempRect.left+tempRect.right)/2,(tempRect.top+tempRect.bottom)/2));
+					if(dis < minDis) //if(tempRect.top < m_faceRect.top)
+						tempFaceRect = tempRect;
 				}
+				m_faceRect = CRect(tempFaceRect.left + partRect.left, 
+					tempFaceRect.top + partRect.top, 
+					tempFaceRect.right + partRect.left, 
+					tempFaceRect.bottom + partRect.top);
+	
+				m_pHeadImage = getROIImage(colorImage,
+					cvRect(m_faceRect.left,m_faceRect.top,m_faceRect.Width(),m_faceRect.Height()));	
+	
+				//Obtain the depth of human face
+				m_faceDepthMin = 0xFFFF;
+				int i,j;
+				for(j=m_faceRect.top; j<m_faceRect.bottom; j++)
+				{
+					for(i=m_faceRect.left; i<m_faceRect.right; i++)
+					{
+						if(mDepth.at<unsigned short>(j,i) < m_faceDepthMin && mDepth.at<unsigned short>(j,i) != 0)
+							m_faceDepthMin = mDepth.at<unsigned short>(j,i) ;
+					}
+				}
+			}
+			else
+			{
+				bFound = false;
 			}
 		}
 		else
 		{
 			bFound = false;
 		}
+		ReleaseFaceDetector(faceDetector);
 	}
-	cvReleaseImage(&partImg);
-	cvReleaseImage(&grayImage);
-	grayImage = NULL;
-	delete m_pFaceDetector;
-	m_pFaceDetector = NULL;
+	else
+	{
+		bFound = false;
+	}
+
+	FDClose();
+
+	if (bFound == false)
+	{
+		m_faceRect = partRect;
+		m_pHeadImage = getROIImage(colorImage,
+			cvRect(m_faceRect.left,m_faceRect.top,m_faceRect.Width(),m_faceRect.Height()));	
+		//Obtain the depth of human face
+		m_faceDepthMin = 0xFFFF;
+		int i,j;
+		for(j=m_faceRect.top; j<m_faceRect.bottom; j++)
+		{
+			for(i=m_faceRect.left; i<m_faceRect.right; i++)
+			{
+				if(mDepth.at<unsigned short>(j,i) < m_faceDepthMin && mDepth.at<unsigned short>(j,i) != 0)
+					m_faceDepthMin = mDepth.at<unsigned short>(j,i) ;
+			}
+		}
+
+		bFound = true;
+	}
 
 	return bFound;
 
+	
 }
 
-
-bool CHandSegment::headDetectionByOpenCV(IplImage* colorImage, Mat mDepth, CvPoint headCenter)
+bool CHandSegment_HMM::headDetectionByOpenCV(IplImage* colorImage, Mat mDepth, CvPoint headCenter)
 {
 	CvMemStorage *storage = 0;
 	CvHaarClassifierCascade *cascade = 0;
@@ -667,7 +792,7 @@ bool CHandSegment::headDetectionByOpenCV(IplImage* colorImage, Mat mDepth, CvPoi
 	return true;
 }
 
-IplImage* CHandSegment::kickOneHand(IplImage* rgbImg, Mat mDepth, CvPoint point, CRect& rect, int flag, CvPoint& outPoint,LONGLONG timeStamp,bool bVideo)
+IplImage* CHandSegment_HMM::kickOneHand(IplImage* rgbImg, Mat mDepth, CvPoint point, CRect& rect, int flag, CvPoint& outPoint,LONGLONG timeStamp,bool bVideo)
 {
 	bool bDepthUsed = true;
 	unsigned short depthValue = mDepth.at<unsigned short>(point.y,point.x);
@@ -994,7 +1119,7 @@ IplImage* CHandSegment::kickOneHand(IplImage* rgbImg, Mat mDepth, CvPoint point,
 	return outputImg;
 }
 
-IplImage* CHandSegment::kickHandForSelect(IplImage *rgbImg, Mat mDepth, CvPoint point)
+IplImage* CHandSegment_HMM::kickHandForSelect(IplImage *rgbImg, Mat mDepth, CvPoint point)
 {
 	bool bDepthUsed = true;
 	unsigned short depthValue = mDepth.at<unsigned short>(point.y,point.x);
@@ -1111,7 +1236,7 @@ IplImage* CHandSegment::kickHandForSelect(IplImage *rgbImg, Mat mDepth, CvPoint 
 	return outputImg;
 }
 
-IplImage* CHandSegment::getROIImage(IplImage* src, CvRect roi)
+IplImage* CHandSegment_HMM::getROIImage(IplImage* src, CvRect roi)
 {
 	if(src == NULL) return NULL;
 	if (roi.x<0) roi.x=0;
@@ -1125,7 +1250,7 @@ IplImage* CHandSegment::getROIImage(IplImage* src, CvRect roi)
 	return dst;
 }
 
-void CHandSegment::colorClusterCv(IplImage* img, int clusterNum)
+void CHandSegment_HMM::colorClusterCv(IplImage* img, int clusterNum)
 {
 	int i = 0;
 	int j = 0;
@@ -1271,7 +1396,7 @@ void CHandSegment::colorClusterCv(IplImage* img, int clusterNum)
 	cvReleaseMat(&clusterIndex);
 }
 
-void CHandSegment::getColorModel(IplImage* image, ColorModel& model)
+void CHandSegment_HMM::getColorModel(IplImage* image, ColorModel& model)
 {
 	int width = image->width;
 	int height = image->height;
@@ -1351,7 +1476,7 @@ void CHandSegment::getColorModel(IplImage* image, ColorModel& model)
 	cvReleaseMat(&bufferMotionRegionImg);
 }
 
-void CHandSegment::getConnexeCenterBox(IplImage* image, int& nMaxRect, int* &theCent, int* &theBox, int nThreshold)
+void CHandSegment_HMM::getConnexeCenterBox(IplImage* image, int& nMaxRect, int* &theCent, int* &theBox, int nThreshold)
 {
 	int nconnectSrcArea = image->width*image->height;
 	void *bufferOut =NULL;
@@ -1397,7 +1522,7 @@ void CHandSegment::getConnexeCenterBox(IplImage* image, int& nMaxRect, int* &the
 	connectSrc = NULL;
 }
 
-void CHandSegment::getForeImage(IplImage* colorImage, IplImage* binaryImage)
+void CHandSegment_HMM::getForeImage(IplImage* colorImage, IplImage* binaryImage)
 {
 	if(colorImage->width != binaryImage->width || colorImage->height != binaryImage->height)
 		return;
@@ -1415,7 +1540,7 @@ void CHandSegment::getForeImage(IplImage* colorImage, IplImage* binaryImage)
 	}
 }
 
-IplImage* CHandSegment::getConnexeImage(IplImage* image)
+IplImage* CHandSegment_HMM::getConnexeImage(IplImage* image)
 {
 	int nconnectSrcArea = image->width*image->height;
 	void *bufferOut =NULL;
@@ -1465,7 +1590,7 @@ IplImage* CHandSegment::getConnexeImage(IplImage* image)
 	return img;
 }
 
-bool CHandSegment::judgePointInRect(CvPoint point, CRect rect)
+bool CHandSegment_HMM::judgePointInRect(CvPoint point, CRect rect)
 {
 	if( point.x >= rect.left && point.y >= rect.top &&
 		point.x <= rect.right && point.y <= rect.bottom)
@@ -1478,7 +1603,7 @@ bool CHandSegment::judgePointInRect(CvPoint point, CRect rect)
 	}
 }
 
-bool CHandSegment::judgeTwoImageHaveUnion(IplImage* leftImg, CRect leftRect, IplImage* rightImg, CRect rightRect)
+bool CHandSegment_HMM::judgeTwoImageHaveUnion(IplImage* leftImg, CRect leftRect, IplImage* rightImg, CRect rightRect)
 {
 	if(leftRect.top < rightRect.bottom || leftRect.bottom > rightRect.top ||
 		leftRect.left > rightRect.right || leftRect.right < rightRect.left)
@@ -1514,7 +1639,7 @@ bool CHandSegment::judgeTwoImageHaveUnion(IplImage* leftImg, CRect leftRect, Ipl
 	return false;
 }
 
-void CHandSegment::getFaceNeckRegion(Mat rgbMat, Mat depthMat)
+void CHandSegment_HMM::getFaceNeckRegion(Mat rgbMat, Mat depthMat)
 {
 	IplImage img(rgbMat);
 	CvPoint headCenter = cvPoint((m_faceRect.left+m_faceRect.right)/2,(m_faceRect.top+m_faceRect.bottom)/2);
@@ -1571,7 +1696,7 @@ void CHandSegment::getFaceNeckRegion(Mat rgbMat, Mat depthMat)
 	cvReleaseImage(&biImg);
 }
 
-void CHandSegment::postureVectorCopy(vector<Posture> src, vector<Posture> &dst)
+void CHandSegment_HMM::postureVectorCopy(vector<Posture> src, vector<Posture> &dst)
 {
 	for(int i=0; i<src.size(); i++)
 	{
@@ -1605,7 +1730,7 @@ void CHandSegment::postureVectorCopy(vector<Posture> src, vector<Posture> &dst)
 	}
 }
 
-void CHandSegment::clearPostureVector(vector<Posture> &vec)
+void CHandSegment_HMM::clearPostureVector(vector<Posture> &vec)
 {
 	try
 	{
@@ -1630,7 +1755,7 @@ void CHandSegment::clearPostureVector(vector<Posture> &vec)
 
 }
 
-Mat CHandSegment::retrieveColorDepth(Mat depthMat)
+Mat CHandSegment_HMM::retrieveColorDepth(Mat depthMat)
 {
 	double maxDisp = -1.f;
 	float S = 1.f;
@@ -1698,12 +1823,12 @@ Mat CHandSegment::retrieveColorDepth(Mat depthMat)
 	return _depthColorImage;
 }
 
-void CHandSegment::copyDepthMat(Mat depthMat)
+void CHandSegment_HMM::copyDepthMat(Mat depthMat)
 {
 	m_depthCopyMat = depthMat.clone();
 }
 
-void CHandSegment::getHogFeature(IplImage *img1, IplImage *img2, double *hogFeas)
+void CHandSegment_HMM::getHogFeature(IplImage *img1, IplImage *img2, double *hogFeas)
 {
 	if(img1 == NULL) img1 = cvLoadImage("black.jpg");
 	if(img2 == NULL) img2 = cvLoadImage("black.jpg");
@@ -1766,7 +1891,7 @@ void CHandSegment::getHogFeature(IplImage *img1, IplImage *img2, double *hogFeas
 
 	//need modify
 	//HOGDescriptor *hog=new HOGDescriptor(cvSize(IMG_SIZE,IMG_SIZE),cvSize(16,16),cvSize(8,8),cvSize(8,8),9);
-	HOGDescriptor *hog=new HOGDescriptor(cvSize(IMG_SIZE,IMG_SIZE),cvSize(32,32),cvSize(16,16),cvSize(16,16),9);
+	HOGDescriptor *hog=new HOGDescriptor(cvSize(IMG_SIZE,IMG_SIZE),cvSize(32,32),cvSize(16,16),cvSize(16,16),9);  //324
 	/////////////////////window大ä¨®小?为a64*64，ê?block大ä¨®小?为a8*8，ê?block步?长¡è为a4*4，ê?cell大ä¨®小?为a4*4
 	Mat handMat(tmpGray);
 
@@ -1790,10 +1915,20 @@ void CHandSegment::getHogFeature(IplImage *img1, IplImage *img2, double *hogFeas
 	CvMat *pcaFeas = cvCreateMat(1,DES_FEA_NUM,CV_32FC1);
 	cvMatMul(feas,pcaMat,pcaFeas);
 
+#ifdef UsePCA
 	for(i=0; i<DES_FEA_NUM; i++)
 	{
 		hogFeas[i] = (cvmGet(pcaFeas,0,i) + 0.0295)/(0.0149 + 0.0295);
 	}
+#endif
+
+#ifndef UsePCA
+	for(i=0; i<DES_FEA_NUM; i++)
+	{
+		hogFeas[i] = (cvmGet(feas,0,i) + 0.0295)/(0.0149 + 0.0295);
+	}
+#endif
+	
 
 	cvReleaseMat(&feas);
 	cvReleaseMat(&pcaFeas);
@@ -1803,7 +1938,7 @@ void CHandSegment::getHogFeature(IplImage *img1, IplImage *img2, double *hogFeas
 	cvReleaseImage(&img);
 }
 
-bool CHandSegment::bBlackImg(IplImage *img)
+bool CHandSegment_HMM::bBlackImg(IplImage *img)
 {
 	if(img->nChannels == 3)
 	{

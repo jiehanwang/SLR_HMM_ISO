@@ -1,28 +1,29 @@
 #include "StdAfx.h"
-#include "S_Matching.h"
+#include "IsolateHMM.h"
 
 
-S_CMatching::S_CMatching(void)
+IsolateHMM::IsolateHMM(void)
 {
 	m_pDhmm_test = new CHMM;
 	m_pRecog = new CRecognition;
 	handSegmentVideo.init();
 	usefulFrameSize = 0;
+	ReadGallery("..\\model\\HmmData_50.dat");
 }
 
 
-S_CMatching::~S_CMatching(void)
+IsolateHMM::~IsolateHMM(void)
 {
 }
 
 
-void S_CMatching::loadModel(CString path)
+void IsolateHMM::loadModel(CString path)
 {
 	m_pDhmm_test->Init(path);
 }
 
 
-void S_CMatching::run(double **feature, int frameNum, int rank[], double score[])
+void IsolateHMM::run(double **feature, int frameNum, int rank[], double score[])
 {
 	m_pRecog->GetHmmModel(m_pDhmm_test);
 	double* pCadidateProb = new double [m_pRecog->m_pDhmm->m_nTotalHmmWord];
@@ -53,12 +54,12 @@ void S_CMatching::run(double **feature, int frameNum, int rank[], double score[]
 	}
 }
 
-bool S_CMatching::comp2(scoreAndIndex dis_1, scoreAndIndex dis_2)
+bool IsolateHMM::comp2(scoreAndIndex dis_1, scoreAndIndex dis_2)
 {
 	return dis_1.score > dis_2.score;
 }
 
-void S_CMatching::frameSelect_inMatch(int heightLimit, int leftY, int rightY)
+void IsolateHMM::frameSelect_inMatch(int heightLimit, int leftY, int rightY)
 {
 	int heightThisLimit = min(leftY,rightY);
 	if (heightThisLimit < heightLimit)
@@ -73,7 +74,7 @@ void S_CMatching::frameSelect_inMatch(int heightLimit, int leftY, int rightY)
 }
 
 
-void S_CMatching::readIndata(SLR_ST_Skeleton skeletonCurrent, Mat depthCurrent, IplImage* frameCurrent,int framID)
+void IsolateHMM::readIndata(SLR_ST_Skeleton skeletonCurrent, Mat depthCurrent, IplImage* frameCurrent,int framID)
 {
 	if (framID == 0)
 	{
@@ -82,7 +83,7 @@ void S_CMatching::readIndata(SLR_ST_Skeleton skeletonCurrent, Mat depthCurrent, 
 
 		headPoint.x = skeletonCurrent._2dPoint[3].x;
 		headPoint.y = skeletonCurrent._2dPoint[3].y;
-		bool bHeadFound = handSegmentVideo.headDetection(
+		bool bHeadFound = handSegmentVideo.headDetectionVIPLSDK(
 			frameCurrent,
 			depthCurrent,
 			headPoint);
@@ -131,7 +132,7 @@ void S_CMatching::readIndata(SLR_ST_Skeleton skeletonCurrent, Mat depthCurrent, 
 }
 
 
-void S_CMatching::recognize(int rank[], double score[])
+void IsolateHMM::recognize(int rank[], double score[])
 {
 	myFeaExtraction.postureFeature(vPosture,handSegmentVideo);
 	myFeaExtraction.SPFeature(vSkeleton);
@@ -156,7 +157,7 @@ void S_CMatching::recognize(int rank[], double score[])
 }
 
 
-void S_CMatching::patchRun(vector<SLR_ST_Skeleton> vSkeletonData, vector<Mat> vDepthData, vector<IplImage*> vColorData, 
+void IsolateHMM::patchRun(vector<SLR_ST_Skeleton> vSkeletonData, vector<Mat> vDepthData, vector<IplImage*> vColorData, 
 	int rank[], double score[])
 {
 	SLR_ST_Skeleton skeletonCurrent;    //The 3 current data.
@@ -187,7 +188,7 @@ void S_CMatching::patchRun(vector<SLR_ST_Skeleton> vSkeletonData, vector<Mat> vD
 }
 
 
-void S_CMatching::ReadGallery(CString path)
+void IsolateHMM::ReadGallery(CString path)
 {
 	modelPath = path;
 	loadModel(modelPath);

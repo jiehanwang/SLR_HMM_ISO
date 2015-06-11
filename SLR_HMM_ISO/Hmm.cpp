@@ -344,7 +344,7 @@ void CHMM::DHMM(char* FileIn,char* FileOut,int L,int MaxN, int M, BOOL bFlag)
 	int Tmax, ST, p;
 	Seq* Sequence;
 	FILE* fp;
-	char buffer[60000]; //Modified by Hanjie Wang
+	char buffer[6000]; //Modified by Hanjie Wang
 
 	T = new int [600];		//Pointer to the time
 

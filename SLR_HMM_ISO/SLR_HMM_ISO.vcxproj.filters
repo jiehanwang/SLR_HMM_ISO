@@ -42,12 +42,6 @@
     <ClInclude Include="Recognition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="S_Matching.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HandSegment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="connexe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,6 +49,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="S_FeaExtraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IsolateHMM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HandSegment_HMM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,16 +80,16 @@
     <ClCompile Include="Recognition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="S_Matching.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HandSegment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="connexe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="S_FeaExtraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IsolateHMM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HandSegment_HMM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,26 +3,21 @@
 #include "Recognition.h"
 #include <opencv2\opencv.hpp>
 #include "S_FeaExtraction.h"
+#include "globalDefine.h"
 using namespace std;
 using namespace cv;
 
-typedef struct scoreAndIndex
-{
-	double score;
-	int index;
-}scoreAndIndex;
-
-class S_CMatching
+class IsolateHMM
 {
 public:
-	S_CMatching(void);
-	~S_CMatching(void);
+	IsolateHMM(void);
+	~IsolateHMM(void);
 
 public:
 	CHMM* m_pDhmm_test;
 	CRecognition *m_pRecog;
 	S_CFeaExtraction myFeaExtraction;
-	CHandSegment handSegmentVideo;
+	CHandSegment_HMM handSegmentVideo;
 
 	CString modelPath;
 

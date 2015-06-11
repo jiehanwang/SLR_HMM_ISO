@@ -2,56 +2,59 @@
 //
 
 #include "stdafx.h"
-#include "S_Matching.h"
+#include "IsolateHMM.h"
 #include "Readvideo.h"
-#include "HandSegment.h"
-#include <fstream>
 using namespace std;
 using namespace cv;
 
-S_CMatching myMatching;
-ofstream outputFile;
-
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CString         videoFileName;
-	SLR_ST_Skeleton skeletonCurrent;    //The 3 current data.
-	Mat             depthCurrent;
-	IplImage        *frameCurrent;
-	CvPoint3D32f    headPoint;
+	IsolateHMM myMatching;
 
-		//Read gallery.
-	CString modelPath = "..\\model\\HmmData_50.dat";
-	myMatching.ReadGallery(modelPath);
+	//Read videos.
+	bool fileFindFlag;
+	CFileFind fileFind;
+	CString normFileName;
+	normFileName.Format("E:\\isolatedDemoSign4test\\P50\\*.oni");
+	fileFindFlag = true;
+	fileFindFlag = fileFind.FindFile(normFileName);
 
-	for (int signID=0; signID<100; signID++)
+	//The loop of testing
+	int *rankIndex;
+	rankIndex = new int[5];
+	double *rankScore;
+	rankScore = new double[5];
+
+	while (fileFindFlag)
 	{
-		int rank[5];
-		double score[5];
-			//Read video.
+		fileFindFlag = fileFind.FindNextFile();
+		CString videoFilePath = fileFind.GetFilePath();
+		CString videoFileName = fileFind.GetFileName();
+		CString videoFileClass = videoFileName.Mid(4,4);
+		int classNo = _ttoi(videoFileClass);
+		cout<<classNo<<endl;
+
 		Readvideo myReadVideo;
-		int frameSize;
-		if (signID < 10)
-			videoFileName.Format("D:\\iData\\isolatedWord\\P50\\P50_000%d_1_0_20121002.oni",signID);
-		else if (signID < 100)
-			videoFileName.Format("D:\\iData\\isolatedWord\\P50\\P50_00%d_1_0_20121002.oni",signID);
-		else if (signID < 1000)
-			videoFileName.Format("D:\\iData\\isolatedWord\\P50\\P50_0%d_1_0_20121002.oni",signID);
-		string  s   =   (LPCTSTR)videoFileName;
+		string  s   =   (LPCTSTR)videoFilePath;
 		myReadVideo.readvideo(s);
+		int frameSize = myReadVideo.vColorData.size();
+		cout<<"Total frameSize "<<frameSize<<endl;
 
 			//Recognize
 		myMatching.patchRun(myReadVideo.vSkeletonData, 
 			myReadVideo.vDepthData,
 			myReadVideo.vColorData,
-			rank, score);
+			rankIndex, rankScore);
 
 			//Show the result
 		for (int i=0; i<5; i++)
 		{
-			cout<<"Top "<<i<<": "<<rank[i]<<" "<<score[i]<<endl;
+			cout<<"Top "<<i<<": "<<rankIndex[i]<<" "<<rankScore[i]<<endl;
 		}
 	}
+
+	delete []rankScore;
+	delete []rankIndex;
 	cout<<"Done!"<<endl;
 	getchar();
 	return 0;

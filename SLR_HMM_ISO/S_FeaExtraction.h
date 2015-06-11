@@ -1,5 +1,5 @@
 #pragma once
-#include "HandSegment.h"
+#include "HandSegment_HMM.h"
 #include "globalDefine.h"
 
 #define spDim 10
@@ -16,7 +16,7 @@ public:
 	double **feature;//[frameNum][DES_FEA_NUM + spDim];
 	int frameNum;
 public:
-	void postureFeature(vector<Posture> vPosture, CHandSegment handSegmentVideo);
+	void postureFeature(vector<Posture> vPosture, CHandSegment_HMM handSegmentVideo);
 	void release(void);
 	void SPFeature(vector<SLR_ST_Skeleton> vSkeleton);
 	void PostureSP(void);

@@ -13,7 +13,7 @@ S_CFeaExtraction::~S_CFeaExtraction(void)
 }
 
 
-void S_CFeaExtraction::postureFeature(vector<Posture> vPosture, CHandSegment handSegmentVideo)
+void S_CFeaExtraction::postureFeature(vector<Posture> vPosture, CHandSegment_HMM handSegmentVideo)
 {
 	frameNum = vPosture.size();
 	hog_color = new double *[frameNum];

@@ -1,4 +1,11 @@
 #pragma once
+
+typedef struct scoreAndIndex
+{
+	double score;
+	int index;
+}scoreAndIndex;
+
 //////////////////////////////////////////////////////////////////////////
 /// @author xu zhihao
 /// @struct _Vector2i

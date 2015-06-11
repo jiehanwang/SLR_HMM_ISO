@@ -13,16 +13,26 @@
 // #include "cv.h"
 // #include "highgui.h"
 #include <opencv2\opencv.hpp>
-#include "JFD_api.h"
-#include "JFD_define.h"
+//#include "JFD_api.h"
+//#include "JFD_define.h"
 //#include "globalDefine.h"
 #include <fstream>
+#include "VIPLFDAPI.h"
 
 using namespace std;
 using namespace cv;
 
-const int SRC_FEA_NUM = 324;
-const int DES_FEA_NUM = 51;
+//#define GrayHandImage  //output unsegmented hand images.
+#define UsePCA
+
+const int SRC_FEA_NUM = 324;//1764;//324;
+#ifdef UsePCA
+	const int DES_FEA_NUM = 51;//51;49
+#endif
+#ifndef UsePCA
+	const int DES_FEA_NUM = 324;//1764;//324;//51;
+#endif
+
 const int IMG_SIZE = 64;
 const CString PCA_FILE_NAME = "..\\input\\pca_51.txt";
 struct Posture
@@ -47,11 +57,11 @@ struct ColorModel
 };
 
 
-class CHandSegment
+class CHandSegment_HMM
 {
 public:
-	CHandSegment(void);
-	~CHandSegment(void);
+	CHandSegment_HMM(void);
+	~CHandSegment_HMM(void);
 
 	//////////////////////////////////////////////////////////////////////////
 	/// @brief initial the class 
@@ -90,6 +100,9 @@ public:
 	/// @return bool judge if head exists
 	/////////////////////////////////////////////////////////////////////////
 	bool headDetection(IplImage* colorImage, Mat mDepth, CvPoint headCenter);
+	//Added by Hanjie Wang
+	bool headDetectionVIPLSDK(IplImage* colorImage, Mat mDepth, CvPoint headCenter);
+
 	bool headDetectionByOpenCV(IplImage* colorImage, Mat mDepth, CvPoint headCenter);
 	//////////////////////////////////////////////////////////////////////////
 	/// @brief get hand posture by depth and color data
