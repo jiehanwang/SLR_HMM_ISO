@@ -42,7 +42,7 @@ typedef struct
 	double **O;
 	double** dwWeight;
 
-} Seq;
+} HMMSeq;
 
 struct Linklists
 {

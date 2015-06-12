@@ -3,7 +3,7 @@
 
 CHandSegment_HMM::CHandSegment_HMM(void)
 {
-
+	PCA_FILE_NAME = "..\\input\\pca_51.txt";
 }
 
 
@@ -208,7 +208,7 @@ IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint 
 	double curCr,curCb;
 	double cr,cb;
 
-	//查找肤色部分深度最小值作为估计手部
+	//Search the minimum depth value in the skin region 
 	for(y=0; y<handCvRect.height; y++)
 	{
 		for(x=0; x<handCvRect.width; x++)
@@ -247,7 +247,7 @@ IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint 
 #endif
 
 	//CString filePath2 = resultDir + m_OniName + "\\temp\\" + fileName + strFlag + "_color_tmep.bmp";
-	//根据深度最小值进行深度限制
+	//Depth constraints according to the minimum depth value. 
 	for(y=0; y<handCvRect.height; y++)
 	{
 		for(x=0; x<handCvRect.width; x++)
@@ -274,7 +274,7 @@ IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint 
 	
 	//CString filePath1 = resultDir + m_OniName + "\\temp\\" + fileName + strFlag + "_temp.bmp";
 
-	//获得肤色检测的最大连通域，求取该连通域中的最小深度，作为估计的手部
+	//Obtain the maximum connected domain, compute the minimum depth
 	IplImage *biImg = cvCreateImage(cvGetSize(handImg),8,1);
 	cvCvtColor(handImg,biImg,CV_BGR2GRAY);
 	cvThreshold(biImg,biImg,0,255,CV_THRESH_BINARY);
@@ -310,7 +310,7 @@ IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint 
 	cvReleaseImage(&biImg);
 	cvReleaseImage(&resultImg);
 
-	//根据检测到的手部，更新肤色模型，确定手部的位置minPoint
+	//Update skin model, locate the hand. 
 	ColorModel colorModel;
 	getColorModel(handImg,colorModel);
 	if(colorModel.mean_cb == 0)
@@ -339,7 +339,7 @@ IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint 
 	m_cr = 0.5000*c_r - 0.4187*c_g - 0.0813*c_b + 128; // cr
 	m_cb = -0.1687*c_r - 0.3313*c_g + 0.5000*c_b + 128; // cb
 
-	int addWidth = 30; //扩大估计手部的大小
+	int addWidth = 30; //Enlarge the size of hand region
 	left = max(outPoint.x-handWidth-addWidth,0);
 	top = max(outPoint.y-handWidth-addWidth,0);
 	right = min(outPoint.x + handWidth+addWidth, 640);
@@ -508,7 +508,6 @@ IplImage* CHandSegment_HMM::kickOneHandAll(IplImage* img, Mat depthMat, CvPoint 
 #ifdef OUTPUT_TEMP_IMAGE
 	cvSaveImage(fileName + "_6_result" + strFlag + ".bmp",outputImg);
 #endif
-
 
 	return outputImg;
 }

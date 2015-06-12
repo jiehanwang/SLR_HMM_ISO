@@ -141,7 +141,7 @@ void CHMM::DHMMPlus(char* FileIn,char* FileOut,int L,int MaxN, int M)
 	int* T;
 	int  N; 
 	int Tmax, ST, p;
-	Seq* Sequence;
+	HMMSeq* Sequence;
 	char buffer[128];
 	FILE* fp;
  
@@ -177,7 +177,7 @@ void CHMM::DHMMPlus(char* FileIn,char* FileOut,int L,int MaxN, int M)
 			   Tmax=T[l];
     }
 
-    Sequence= (Seq *)malloc(L*sizeof(Seq));		//Pointer to the time
+    Sequence= (HMMSeq *)malloc(L*sizeof(HMMSeq));		//Pointer to the time
 	if (!(fp = fopen(FileIn, "r")))
 					 exit(1);
 
@@ -234,7 +234,7 @@ void CHMM::DHMMPlus(char* FileIn,char* FileOut,int L,int MaxN, int M)
 	free(Sequence);
 	delete []T;
 }
-void CHMM::TrainPlus(int WordFlag, Seq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx )
+void CHMM::TrainPlus(int WordFlag, HMMSeq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx )
 {
 	int   l, ite;
 	double ***Mixture,***Cov; 
@@ -342,7 +342,7 @@ void CHMM::DHMM(char* FileIn,char* FileOut,int L,int MaxN, int M, BOOL bFlag)
 	int* T;
 	int  N; 
 	int Tmax, ST, p;
-	Seq* Sequence;
+	HMMSeq* Sequence;
 	FILE* fp;
 	char buffer[6000]; //Modified by Hanjie Wang
 
@@ -398,7 +398,7 @@ void CHMM::DHMM(char* FileIn,char* FileOut,int L,int MaxN, int M, BOOL bFlag)
            if(T[l]>Tmax) Tmax=T[l];
     }
 
-    Sequence= (Seq *)malloc(L*sizeof(Seq));		//Pointer to the time
+    Sequence= (HMMSeq *)malloc(L*sizeof(HMMSeq));		//Pointer to the time
 	if (!(fp = fopen(FileIn, "r")))
 					 exit(1);
 
@@ -428,7 +428,7 @@ void CHMM::DHMM(char* FileIn,char* FileOut,int L,int MaxN, int M, BOOL bFlag)
 	delete []T;
 } 
 
-void CHMM::Train( Seq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx )
+void CHMM::Train( HMMSeq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx )
 {
 	int   l, ite;
 	double ***Mixture,***Cov; 
@@ -729,7 +729,7 @@ void CHMM::InitAllPlus(int nWord,double*** Mixture,double*** Cov,double *Pi,doub
 
 }
 
-void  CHMM::InitN(Seq *Sequnce, int *T, int L, int MaxN, int *N, int p)
+void  CHMM::InitN(HMMSeq *Sequnce, int *T, int L, int MaxN, int *N, int p)
 {
 	int j,l,t,Max,Kt,flag;
 	int *Seg;
@@ -776,7 +776,7 @@ void  CHMM::InitN(Seq *Sequnce, int *T, int L, int MaxN, int *N, int p)
 }
 
 
-void  CHMM::InitMixture(Seq *Sequnce,double ***Mixture,double ***Cov,int *T,int N,int M,int L,int p)
+void  CHMM::InitMixture(HMMSeq *Sequnce,double ***Mixture,double ***Cov,int *T,int N,int M,int L,int p)
 {
 	int j,l,k,t,numdata,number,**Kts,**Kte,*Seg_point;
     double **mu;

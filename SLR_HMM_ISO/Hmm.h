@@ -18,7 +18,7 @@ public:
 	CHMM();
 	virtual ~CHMM();
 
-	void TrainPlus(int WordFlag, Seq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx );
+	void TrainPlus(int WordFlag, HMMSeq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx );
 	void DHMMPlus(char* FileIn,char* FileOut,int L,int MaxN, int M);
 	void InitAllPlus(int nWord,double*** Mixture,double*** Cov,double *Pi,double **A,double **APre,double **Cpai,int M,int N,int p);
 	void CalculateBPlus(double **B, double **Cpai,double **O,double **dwWeight,
@@ -64,7 +64,7 @@ public:
 	int MapEmbedTable(int nNum);
 	
 	void WriteHmmFile(double* Pai,double** A,double** CPai,double*** Mixture, double*** Cov,int M, int N, int Dimension,CString WaitWord);
-	void Train( Seq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx );
+	void Train( HMMSeq* Sequence, int* T, int L, int M, int N, int p,int Tmax, char* FileOut, int NodeIdx );
 	void  DHMM(char *BaseFile,char *FileOut,int L,int MaxN,int M,BOOL bFlag=TRUE);
 	void  GetT(FILE *fp,int *T,int *p);
 
@@ -95,8 +95,8 @@ public:
 					 double ***Cov,int M,int N,int p);
 	void  InitZero(double **C_mid,double *sump,double **A_up,double *temp,double **Eita,
 					double ***Tempmean,double ***Tempcov,int M,int N,int L,int p);
-    void  InitN(Seq *Sequnce, int *T, int L, int MaxN, int *N, int p);
-    void  InitMixture(Seq *Sequnce,double  ***Mixture,double ***Cov,int *T,int N,
+    void  InitN(HMMSeq *Sequnce, int *T, int L, int MaxN, int *N, int p);
+    void  InitMixture(HMMSeq *Sequnce,double  ***Mixture,double ***Cov,int *T,int N,
 					int M,int L,int p);
 	void  InitAll(double *Pi,double **A,double **APre,double **Cpai,int M,
 					int N);
